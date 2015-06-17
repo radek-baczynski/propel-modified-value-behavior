@@ -111,7 +111,7 @@ class ModifiedValueModelBuilderModifier
 	{
 		$method = $parser->findMethod('save');
 
-		$clearArray = '            $this->_previousValues = [];';
+		$clearArray = '            $this->previousValues = [];';
 		$replaced = preg_replace('/(\$con->commit\(\);)/', "$1\n".$clearArray, $method);
 
 		$parser->replaceMethod('save', $replaced);
