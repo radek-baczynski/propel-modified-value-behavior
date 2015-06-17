@@ -75,6 +75,7 @@ class ModifiedValueModelBuilderModifier
 	{
 		$beforeCode = $this->behavior->renderTemplate('beforeCode', [
 			'peerColumn' => $column->getConstantName(),
+			'columnName' => $column->getPhpName(),
 		]);
 
 		$newCode = preg_replace('/^([^\{]*\{)/', "$1\n        " . $beforeCode, $code);
@@ -93,6 +94,7 @@ class ModifiedValueModelBuilderModifier
 	{
 		$afterCode = $this->behavior->renderTemplate('afterCode', [
 			'peerColumn' => $column->getConstantName(),
+			'columnName' => $column->getPhpName(),
 		]);
 
 		$newCode = preg_replace('/(return .+;)/', $afterCode . "\n        $1", $code);
