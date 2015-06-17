@@ -1,0 +1,21 @@
+{
+    "name": "radekb/propel-modified-value-behavior",
+    "description": "Propel behavior for Access previous value of field after called setter method",
+    "require": {
+        "propel/propel1": "1.*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Radek Baczynski",
+            "email": "radek.baczynski@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src"
+        ]
+    },
+
+  "minimum-stability": "dev"
+}

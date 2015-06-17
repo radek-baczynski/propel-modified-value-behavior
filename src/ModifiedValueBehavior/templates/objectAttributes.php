@@ -1,0 +1,4 @@
+/**
+* @var array
+*/
+private $previousValues = [];
