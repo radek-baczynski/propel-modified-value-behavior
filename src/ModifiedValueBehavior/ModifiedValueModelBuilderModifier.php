@@ -60,6 +60,8 @@ class ModifiedValueModelBuilderModifier
 		}
 
 		$this->modifySaveAfterCommit($parser);
+		$this->overrideResetModifiedMethod($parser);
+		$this->addGetAllPreviousValuesMethod($parser);
 
 		$script = $parser->getCode();
 	}
@@ -115,5 +117,15 @@ class ModifiedValueModelBuilderModifier
 		$replaced = preg_replace('/(\$con->commit\(\);)/', "$1\n".$clearArray, $method);
 
 		$parser->replaceMethod('save', $replaced);
+	}
+
+	private function overrideResetModifiedMethod(\PropelPHPParser $parser)
+	{
+		$parser->addMethodAfter('save', $this->behavior->renderTemplate('resetModified'));
+	}
+
+	private function addGetAllPreviousValuesMethod(\PropelPHPParser $parser)
+	{
+		$parser->addMethodAfter('save', $this->behavior->renderTemplate('allPreviousValues'));
 	}
 }
