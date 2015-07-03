@@ -7,5 +7,5 @@
      */
     public function getPreviousValueOf<?php echo $columnName;?>()
     {
-        return !empty($this->previousValues[<?php echo $peerColumn?>]) ? $this->previousValues[<?php echo $peerColumn?>] : null;
+        return $this->hasPreviousValueOf<?php echo $columnName;?>() ? $this->previousValues[<?php echo $peerColumn?>] : null;
     }
