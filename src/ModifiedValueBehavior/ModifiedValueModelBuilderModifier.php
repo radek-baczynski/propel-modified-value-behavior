@@ -132,15 +132,16 @@ class ModifiedValueModelBuilderModifier
 
 	private function modifyPostSaveEvent(\PropelPHPParser $parser)
 	{
-		$oldCode = $parser->findMethod('save');
+		$code = $parser->findMethod('save');
 
-		$pattern = "/(dispatch\('propel.post_save', new GenericEvent\(.+, array\()/";
+		foreach(['post_save', 'post_update', 'post_insert'] as $eventName)
+		{
+			$pattern = "/(dispatch\('propel.".$eventName."', new GenericEvent\(.+, array\()/";
+			$replacedArg = sprintf('%s', "'previousValues' => \$previousValues");
+			$code = preg_replace($pattern, sprintf('$1%s, ', $replacedArg), $code);
+		}
+		$code = preg_replace('(\$con->beginTransaction\(\);)', "\$0\n        \$previousValues = \$this->getAllPreviousValues();", $code);
 
-		$replacedArg = sprintf('%s', "'previousValues' => \$previousValues");
-
-		$replaced = preg_replace($pattern, sprintf('$1%s, ', $replacedArg), $oldCode);
-		$replaced = preg_replace('(\$con->beginTransaction\(\);)', "\$0\n        \$previousValues = \$this->getAllPreviousValues();", $replaced);
-
-		$parser->replaceMethod('save', $replaced);
+		$parser->replaceMethod('save', $code);
 	}
 }
