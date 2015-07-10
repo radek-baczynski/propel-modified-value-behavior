@@ -60,6 +60,7 @@ class ModifiedValueModelBuilderModifier
 		}
 
 		$this->modifySaveAfterCommit($parser);
+		$this->modifyPostSaveEvent($parser);
 		$this->overrideResetModifiedMethod($parser);
 		$this->addGetAllPreviousValuesMethod($parser);
 
@@ -127,5 +128,19 @@ class ModifiedValueModelBuilderModifier
 	private function addGetAllPreviousValuesMethod(\PropelPHPParser $parser)
 	{
 		$parser->addMethodAfter('save', $this->behavior->renderTemplate('allPreviousValues'));
+	}
+
+	private function modifyPostSaveEvent(\PropelPHPParser $parser)
+	{
+		$oldCode = $parser->findMethod('save');
+
+		$pattern = "/(dispatch\('propel.post_save', new GenericEvent\(.+, array\()/";
+
+		$replacedArg = sprintf('%s', "'previousValues' => \$previousValues");
+
+		$replaced = preg_replace($pattern, sprintf('$1%s, ', $replacedArg), $oldCode);
+		$replaced = preg_replace('(\$con->beginTransaction\(\);)', "\$0\n        \$previousValues = \$this->getAllPreviousValues();", $replaced);
+
+		$parser->replaceMethod('save', $replaced);
 	}
 }
