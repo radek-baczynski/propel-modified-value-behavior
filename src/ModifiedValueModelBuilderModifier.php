@@ -2,23 +2,25 @@
 
 namespace Radekb\ModifiedValueBehavior;
 
-use Column;
+use Propel\Generator\Builder\Om\ObjectBuilder;
+use Propel\Generator\Model\Column;
+use Propel\Generator\Util\PhpParser;
 
 class ModifiedValueModelBuilderModifier
 {
-	/** @var  \ModifiedValueBehavior */
+	/** @var  ModifiedValueBehavior */
 	protected $behavior;
 
 	/**
-	 * @param \ModifiedValueBehavior $behavior
+	 * @param ModifiedValueBehavior $behavior
 	 */
-	function __construct(\ModifiedValueBehavior $behavior)
+	function __construct(ModifiedValueBehavior $behavior)
 	{
 		$this->behavior = $behavior;
 	}
 
 	/**
-	 * @param $builder \ObjectBuilder
+	 * @param $builder ObjectBuilder
 	 *
 	 * @return string
 	 */
@@ -34,7 +36,7 @@ class ModifiedValueModelBuilderModifier
 	 */
 	public function objectFilter(&$script)
 	{
-		$parser = new \PropelPHPParser($script, true);
+		$parser = new PhpParser($script, true);
 
 		foreach ($this->behavior->getTable()->getColumns() as $column)
 		{
@@ -49,17 +51,15 @@ class ModifiedValueModelBuilderModifier
 
 			$parser->addMethodAfter($setterName, $this->behavior->renderTemplate('hasPrevious', [
 				'columnName' => $column->getPhpName(),
-				'peerColumn' => $column->getConstantName(),
+				'peerColumn' => $column->getFQConstantName(),
 			]));
 
 			$parser->addMethodAfter($setterName, $this->behavior->renderTemplate('getPrevious', [
 				'columnName' => $column->getPhpName(),
-				'peerColumn' => $column->getConstantName(),
+				'peerColumn' => $column->getFQConstantName(),
 				'type'       => $column->getPhpType(),
 			]));
 		}
-
-		$this->modifySaveAfterCommit($parser);
 
 		$script = $parser->getCode();
 	}
@@ -67,14 +67,14 @@ class ModifiedValueModelBuilderModifier
 	/**
 	 * @param                  $code
 	 * @param Column           $column
-	 * @param \PropelPHPParser $parser
+	 * @param PhpParser $parser
 	 *
 	 * @return mixed
 	 */
-	private function modifySetterBeginning($code, Column $column, \PropelPHPParser $parser)
+	private function modifySetterBeginning($code, Column $column, PhpParser $parser)
 	{
 		$beforeCode = $this->behavior->renderTemplate('beforeCode', [
-			'peerColumn' => $column->getConstantName(),
+			'peerColumn' => $column->getFQConstantName(),
 			'columnName' => $column->getPhpName(),
 		]);
 
@@ -86,14 +86,14 @@ class ModifiedValueModelBuilderModifier
 	/**
 	 * @param                  $code
 	 * @param Column           $column
-	 * @param \PropelPHPParser $parser
+	 * @param PhpParser $parser
 	 *
 	 * @return mixed
 	 */
-	private function modifySetterBeforeReturn($code, Column $column, \PropelPHPParser $parser)
+	private function modifySetterBeforeReturn($code, Column $column, PhpParser $parser)
 	{
 		$afterCode = $this->behavior->renderTemplate('afterCode', [
-			'peerColumn' => $column->getConstantName(),
+			'peerColumn' => $column->getFQConstantName(),
 			'columnName' => $column->getPhpName(),
 		]);
 
@@ -105,15 +105,10 @@ class ModifiedValueModelBuilderModifier
 	/**
 	 * Clear previous values after commit
 	 *
-	 * @param \PropelPHPParser $parser
+	 * @return string
 	 */
-	private function modifySaveAfterCommit(\PropelPHPParser $parser)
+	public function postSave()
 	{
-		$method = $parser->findMethod('save');
-
-		$clearArray = '            $this->previousValues = [];';
-		$replaced = preg_replace('/(\$con->commit\(\);)/', "$1\n".$clearArray, $method);
-
-		$parser->replaceMethod('save', $replaced);
+		return $this->behavior->renderTemplate('postSave', []);
 	}
 }

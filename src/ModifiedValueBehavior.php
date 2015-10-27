@@ -1,5 +1,8 @@
 <?php
-use Radekb\ModifiedValueBehavior\ModifiedValueModelBuilderModifier;
+
+namespace Radekb\ModifiedValueBehavior;
+
+use Propel\Generator\Model\Behavior;
 
 class ModifiedValueBehavior extends Behavior
 {

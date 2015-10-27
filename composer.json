@@ -1,21 +1,28 @@
 {
-    "name": "radekb/propel-modified-value-behavior",
-    "description": "Propel behavior for Access previous value of field after called setter method",
-    "require": {
-        "propel/propel1": "1.*"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Radek Baczynski",
-            "email": "radek.baczynski@gmail.com"
-        }
-    ],
-    "autoload": {
-        "classmap": [
-            "src"
-        ]
-    },
-
+  "name": "radekb/propel-modified-value-behavior",
+  "description": "Propel behavior for Access previous value of field after called setter method",
+  "type": "propel-behavior",
+  "require": {
+    "propel/propel": "2.0.x-dev"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Radek Baczynski",
+      "email": "radek.baczynski@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Radekb\\ModifiedValueBehavior\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "modified_value",
+    "class": "\\Radekb\\ModifiedValueBehavior\\ModifiedValueBehavior"
+  },
   "minimum-stability": "dev"
 }
