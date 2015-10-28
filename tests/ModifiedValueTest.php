@@ -72,4 +72,39 @@ EOF;
 		$this->assertEquals(null, $object->getPreviousValueOfTitle());
 		$this->assertEquals(false, $object->hasPreviousValueOfTitle());
 	}
+
+	public function testAllPrevious()
+	{
+		$object = new \TestModel();
+		$object->setTitle('Abc');
+		$object->setAge(10);
+		$object->save();
+
+		$object->setTitle('Cdef');
+		$object->setAge(20);
+
+		$previous = $object->getAllPreviousValues();
+
+		$this->assertEquals('Abc', $previous[Map\TestModelTableMap::COL_TITLE]);
+		$this->assertEquals(10, $previous[Map\TestModelTableMap::COL_AGE]);
+	}
+
+	public function testResetModifiedAll()
+	{
+		$object = new \TestModel();
+		$object->setTitle('Abc');
+		$object->setAge(10);
+		$object->save();
+
+		$object->setTitle('Cdef');
+		$object->setAge(20);
+
+		$object->resetModified();
+
+		$previous = $object->getAllPreviousValues();
+
+		$this->assertEquals(null, $object->getPreviousValueOfTitle());
+		$this->assertEquals(null, $object->getPreviousValueOfAge());
+		$this->assertEquals([], $previous);
+	}
 }

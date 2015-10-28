@@ -29,6 +29,13 @@ class ModifiedValueModelBuilderModifier
 		return $this->behavior->renderTemplate('objectAttributes');
 	}
 
+	public function objectMethods($builder)
+	{
+		$str = $this->behavior->renderTemplate('allPreviousValues');
+
+		return $str;
+	}
+
 	/**
 	 * Modify setters to store previous values, add useful has/get previous value methods for model
 	 *
@@ -60,6 +67,31 @@ class ModifiedValueModelBuilderModifier
 				'type'       => $column->getPhpType(),
 			]));
 		}
+
+		$resetModifiedCode = $parser->findMethod('resetModified');
+		$resetPreviousCode = $this->behavior->renderTemplate('resetModified');
+
+		$regexp = "~
+			function                 #function keyword
+			\s+                      #any number of whitespaces
+			(?P<function_name>.*?)   #function name itself
+			\s*                      #optional white spaces
+			(?P<parameters>\(.*?\))  #function parameters
+			\s*                      #optional white spaces
+			(?P<body>\{(?P<bodyCode>.*?)\}$)        #body and body code of a function
+        ~six";
+
+		preg_match_all($regexp, $resetModifiedCode, $matches);
+
+		if(empty($matches['bodyCode']))
+		{
+			throw new \Exception('Cannot parse method');
+		}
+
+		$bodyCode = $matches['bodyCode'][0].$resetPreviousCode;
+		$resetModifiedCode = str_replace($matches['bodyCode'][0], $bodyCode, $resetModifiedCode);
+
+		$parser->replaceMethod('resetModified', $resetModifiedCode);
 
 		$script = $parser->getCode();
 	}
